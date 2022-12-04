@@ -1,0 +1,50 @@
+name: Test
+
+on:
+  push:
+    branches: [ '**' ]
+  workflow_dispatch: # or manual
+
+jobs:
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        php      : [ 7.2, 7.3, 7.4, "8.0", 8.1 ]
+        phpstan  : [ 1.9.2 ]
+        composer : [ 2.4.4 ]
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Composer cache
+      uses: actions/cache@v3
+      with:
+        path: /tmp/composer-cache
+        key: ${{ runner.os }}-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
+
+    - name: Composer install
+      uses: php-actions/composer@v6
+      with:
+        php_version : ${{ matrix.php }}
+        version     : ${{ matrix.composer }}
+
+    - name: Run main.php
+      shell : bash
+      run: |
+        docker  run  --rm                  \
+          -v "/$PWD/":/app/                \
+          -w /app/                         \
+          --entrypoint=/usr/local/bin/php  \
+          php:${{ matrix.php }}-alpine     \
+          main.php                         \
+        ;
+
+    - name: PHPStan Analyze
+      uses: php-actions/phpstan@v3
+      with:
+        version     : ${{ matrix.phpstan }}
+        php_version : ${{ matrix.php }}
