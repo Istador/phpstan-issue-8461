@@ -11,8 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php      : [ 7.2, 7.3, 7.4, "8.0", 8.1 ]
-        phpstan  : [ 1.9.2 ]
+        php      : [ 7.2, 7.3, 7.4, "8.0", 8.1, 8.2 ]
+        phpstan  : [ 1.9.2, 1.10.38, 1.10.39, 1.10.57 ]
         composer : [ 2.4.4 ]
     runs-on: ubuntu-latest
     steps:
